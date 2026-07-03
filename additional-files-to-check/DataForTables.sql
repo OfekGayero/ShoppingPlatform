@@ -38,3 +38,4 @@ INSERT INTO CartItemsTable (CID, SERIAL_NUMBER) VALUES
 SELECT setval('userstable_uid_seq', (SELECT MAX(uid) FROM UsersTable));
 SELECT setval('itemstable_serial_number_seq', (SELECT MAX(serial_number) FROM ItemsTable));
 SELECT setval('shoppingcartstable_cid_seq', (SELECT MAX(cid) FROM ShoppingCartsTable));
+

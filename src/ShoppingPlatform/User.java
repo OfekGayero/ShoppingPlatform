@@ -3,11 +3,15 @@ package ShoppingPlatform;
 public abstract class User {
     private String userName;
     private String password;
+    private int uid;
 
     public User(String userName, String password) {
         this.userName = userName;
         this.password = password;
     }
+
+    public int getUid() { return uid; }
+    public void setUid(int uid) { this.uid = uid; }
 
     public String getUserName() {
         return userName;

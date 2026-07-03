@@ -50,6 +50,19 @@ public class ItemList implements Cloneable {
         }
         return null;
     }
+
+    public boolean removeItem(int serial) {
+        for (int i = 0; i < listLen; i++) {
+            if (list[i].getSerial() == serial) {
+                for (int j = i; j < listLen - 1; j++) {
+                    list[j] = list[j + 1];
+                }
+                list[--listLen] = null;
+                return true;
+            }
+        }
+        return false;
+    }
     public int getTotalPrice(){
         int sum=0;
         for (int i = 0; i < listLen; i++) {

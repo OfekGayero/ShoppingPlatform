@@ -14,11 +14,17 @@ public class Main {
             boolean checker=false;
             while (!checker) {
                 System.out.print("Select Desired Option:\n" +
-                        "1 add seller, 2 add buyer , 3 add item to seller\n" +
-                        "4 add item to buyer, 5 payment for buyer\n" +
-                        "6 print all buyers data, 7 print all data for seller,\n" +
-                        "8 print seller items by catagory\n"
-                        +"9 Copy cart from Buyer History\n"+
+                        "1 add seller\n" +
+                        "2 add buyer\n" +
+                        "3 add item to seller\n" +
+                        "4 add item to buyer\n" +
+                        "5 payment for buyer\n" +
+                        "6 print all buyers data\n" +
+                        "7 print all data for seller,\n" +
+                        "8 print seller items by catagory\n" +
+                        "9 Copy cart from Buyer History\n" +
+                        "10 update item\n" +
+                        "11 delete item\n" +
                         "0 to exit \n");
                 userOption= scan.next();
                 if(!admin.wrongTypeHandling(userOption)){
@@ -63,6 +69,14 @@ public class Main {
                     chooseHistoryCart();
                     break;
                 }
+                case 10: {
+                    updateItem();
+                    break;
+                }
+                case 11: {
+                    deleteItem();
+                    break;
+                }
             }
         } while (option != 0);
         scan.close();
@@ -78,7 +92,7 @@ public class Main {
             if (admin.checkName(name)) {
                 System.out.println("Enter password:");
                 String password = scan.next();
-                admin.addSellerToArray(name, password);
+                admin.addSeller(name, password);
                 break;
             } else {
                 System.out.println("Username already used. Try another.");
@@ -112,7 +126,7 @@ public class Main {
                 String city=scan.next();
                 System.out.println("Enter country:");
                 String country=scan.next();
-                admin.addBuyerToArray(name, password, streetName,userBuildingNum,city,country);
+                admin.addBuyer(name, password, streetName, userBuildingNum, city, country);
                 break;
             } else {
                 System.out.println("Username already used. Try another.");
@@ -307,6 +321,63 @@ public class Main {
              System.out.println("Buyers list is empty. Select diffrent option");
         }
     }
+    // option 10
+    private static void updateItem() {
+        if (admin.checkSellerListEmpty()) {
+            System.out.println("Sellers list is empty. Select different option");
+            return;
+        }
+        System.out.println("Enter seller name:");
+        while (true) {
+            String sellerName = scan.next();
+            int sellerIndex = admin.isInSellers(sellerName);
+            if (sellerIndex != -1) {
+                System.out.println(admin.printSellerList(sellerIndex));
+                System.out.println("Enter item name to update:");
+                String itemName = scan.next();
+                System.out.println("Enter new item name:");
+                String newName = scan.next();
+                System.out.println("Enter new price:");
+                String newPrice = "";
+                boolean checker = false;
+                while (!checker) {
+                    newPrice = scan.next();
+                    if (!admin.wrongTypeHandling(newPrice)) {
+                        System.out.println("Enter a number!");
+                    } else {
+                        checker = true;
+                    }
+                }
+                admin.updateItem(sellerIndex, itemName, newName, newPrice);
+                break;
+            } else {
+                System.out.println("Seller doesn't exist. Enter again:");
+            }
+        }
+    }
+
+    // option 11
+    private static void deleteItem() {
+        if (admin.checkSellerListEmpty()) {
+            System.out.println("Sellers list is empty. Select different option");
+            return;
+        }
+        System.out.println("Enter seller name:");
+        while (true) {
+            String sellerName = scan.next();
+            int sellerIndex = admin.isInSellers(sellerName);
+            if (sellerIndex != -1) {
+                System.out.println(admin.printSellerList(sellerIndex));
+                System.out.println("Enter item name to delete:");
+                String itemName = scan.next();
+                admin.deleteItem(sellerIndex, itemName);
+                break;
+            } else {
+                System.out.println("Seller doesn't exist. Enter again:");
+            }
+        }
+    }
+
     private static Catagory selectCatagory() {
         Catagory catagory = Catagory.OTHER;
         boolean outerchecker=false;

@@ -23,6 +23,10 @@ public class Item implements Cloneable {
         return serial;
     }
 
+    public void setSerial(int serial) {
+        this.serial = serial;
+    }
+
     public String getItemName() {
         return itemName;
     }

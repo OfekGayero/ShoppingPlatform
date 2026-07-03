@@ -35,4 +35,24 @@ public class ItemDAO {
         ps.setString(1, category);
         return ps.executeQuery();
     }
+
+    public void updateItem(int serialNumber, String newName, double newPrice) throws SQLException {
+        String sql = "UPDATE ItemsTable SET ITEM_NAME = ?, PRICE = ? WHERE SERIAL_NUMBER = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newName);
+            ps.setDouble(2, newPrice);
+            ps.setInt(3, serialNumber);
+            ps.executeUpdate();
+        }
+    }
+
+    public void deleteItem(int serialNumber) throws SQLException {
+        String sql = "DELETE FROM ItemsTable WHERE SERIAL_NUMBER = ?";
+        try (Connection conn = DataBaseConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, serialNumber);
+            ps.executeUpdate();
+        }
+    }
 }

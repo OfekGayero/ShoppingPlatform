@@ -5,7 +5,7 @@ import java.sql.*;
 
 public class CartDAO {
     public int insertCart(int buyerUID, String date) throws SQLException {
-        String sql = "INSERT INTO ShoppingCartsTable (DATE, UID) VALUES (?, ?) RETURNING CID";
+        String sql = "INSERT INTO ShoppingCartsTable (CART_DATE, UID) VALUES (?, ?) RETURNING CID";
         try (Connection conn = DataBaseConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, date);
@@ -27,7 +27,7 @@ public class CartDAO {
     }
 
     public ResultSet getCartHistory(int buyerUID) throws SQLException {
-        String sql = "SELECT sc.CID, sc.DATE, i.ITEM_NAME, i.PRICE " +
+        String sql = "SELECT sc.CID, sc.CART_DATE, i.ITEM_NAME, i.PRICE " +
                      "FROM ShoppingCartsTable sc " +
                      "JOIN CartItemsTable ci ON sc.CID = ci.CID " +
                      "JOIN ItemsTable i ON ci.SERIAL_NUMBER = i.SERIAL_NUMBER " +
