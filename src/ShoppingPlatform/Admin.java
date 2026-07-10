@@ -2,6 +2,7 @@ package ShoppingPlatform;
 
 import ShoppingPlatform.DataAccessObject.CartDAO;
 import ShoppingPlatform.DataAccessObject.ItemDAO;
+import ShoppingPlatform.DataAccessObject.QueryDAO;
 import ShoppingPlatform.DataAccessObject.UserDAO;
 
 import java.sql.*;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.Date;
 
 public class Admin {
+    private final QueryDAO queriesDAO = new QueryDAO();
     private Buyer[] buyerList;
     private int buyerCount;
     private Seller[] sellerList;
@@ -27,6 +29,7 @@ public class Admin {
     // ── Startup: load existing DB data into memory ───────────────
 
     private void loadFromDB() {
+        //gets all sellers
         try {
             ResultSet rs = userDAO.getAllSellers();
             while (rs.next()) {
@@ -48,7 +51,7 @@ public class Admin {
         } catch (SQLException e) {
             System.out.println("Error loading sellers from DB: " + e.getMessage());
         }
-
+        // gets all buyers
         try {
             ResultSet rs = userDAO.getAllBuyers();
             while (rs.next()) {
@@ -62,10 +65,40 @@ public class Admin {
                 Buyer buyer = new Buyer(rs.getString("USERNAME"), rs.getString("PASSWORD"), address);
                 buyer.setUid(uid);
                 addBuyerToMemory(buyer);
+
+                // Load cart history for this buyer
+                ResultSet cartRs = cartDAO.getCartHistory(uid);
+                int lastCid = -1;
+                ShoppingCart cart = null;
+                while (cartRs.next()) {
+                    int cid = cartRs.getInt("CID");
+                    if (cid != lastCid) {
+                        if (cart != null) {
+                            buyer.setCurrent(cart);
+                            buyer.addToHistory();
+                        }
+                        cart = new ShoppingCart();
+                        cart.setDate(cartRs.getString("CART_DATE"));
+                        lastCid = cid;
+                    }
+                    Item item = new Item(
+                    cartRs.getString("ITEM_NAME"),
+                    cartRs.getDouble("PRICE"),
+                    Catagory.valueOf(cartRs.getString("CATEGORY"))
+                    );
+                item.setSerial(cartRs.getInt("SERIAL_NUMBER"));
+                cart.getItemList().addToList(item);
+                }
+            if (cart != null) {
+                buyer.setCurrent(cart);
+                buyer.addToHistory();
+            }
+            buyer.setCurrent(new ShoppingCart());
             }
         } catch (SQLException e) {
             System.out.println("Error loading buyers from DB: " + e.getMessage());
         }
+
     }
 
     private void addSellerToMemory(Seller seller) {
@@ -356,8 +389,14 @@ public class Admin {
         return sellerList[sellerIndex].getSellingList().toString();
     }
 
-    public int getBuyerHistoryLen(int buyerIndex) {
-        return buyerList[buyerIndex].getHistoryLen();
+
+    public int getBuyerHistoryLen(int buyerIndex){
+        try {
+            return cartDAO.getCartCount(buyerList[buyerIndex].getUid());
+        } catch (SQLException e) {
+            System.out.println("Error getting cart count: " + e.getMessage());
+            return 0;
+        }
     }
 
     public void cloneShoppingCart(int buyerIndex, int cartIndex) {
@@ -390,4 +429,5 @@ public class Admin {
             return false;
         }
     }
+
 }

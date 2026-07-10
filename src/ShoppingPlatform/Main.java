@@ -1,8 +1,13 @@
 package ShoppingPlatform;
+import ShoppingPlatform.DataAccessObject.QueryDAO;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Scanner;
 public class Main {
     private static Scanner scan = new Scanner(System.in);
     private static Admin admin = new Admin();
+    private static final QueryDAO queryDAO = new QueryDAO();
 
     public static void main(String[] args) {
         menu();
@@ -14,6 +19,7 @@ public class Main {
             boolean checker=false;
             while (!checker) {
                 System.out.print("Select Desired Option:\n" +
+                        "Managment Options\n"+
                         "1 add seller\n" +
                         "2 add buyer\n" +
                         "3 add item to seller\n" +
@@ -25,6 +31,17 @@ public class Main {
                         "9 Copy cart from Buyer History\n" +
                         "10 update item\n" +
                         "11 delete item\n" +
+                        "Queries\n"+
+                        "21 Show electric items\n"+
+                        "22 Show average price of items from each category\n"+
+                        "23 Show the user with most items\n"+
+                        "24 Show shopping cart history of alice\n"+
+                        "25 Show all items from cart with cid = 3\n"+
+                        "26 Show all carts total price grouped by cart id\n"+
+                        "27 Show dave_sells most expensive item\n"+
+                        "28 Show number of carts per buyer (that has at least one cart) \n"+
+                        "29 Show the item purchased the most\n"+
+                        "30 Show number of orders per country\n"+
                         "0 to exit \n");
                 userOption= scan.next();
                 if(!admin.wrongTypeHandling(userOption)){
@@ -75,6 +92,46 @@ public class Main {
                 }
                 case 11: {
                     deleteItem();
+                    break;
+                }
+                case 21: {
+                    getElectricItems();
+                    break;
+                }
+                case 22:{
+                    getAverageOfEachCategory();
+                    break;
+                }
+                case 23:{
+                    userWithMostItems();
+                    break;
+                }
+                case 24:{
+                    aliceCartHistory();
+                    break;
+                }
+                case 25:{
+                    itemsFromCartID3();
+                    break;
+                }
+                case 26:{
+                    totalPriceByCartID();
+                    break;
+                }
+                case 27:{
+                    davesMostExpensiveItem();
+                    break;
+                }
+                case 28:{
+                    cartsPerBuyer();
+                    break;
+                }
+                case 29:{
+                    mostPurchasedItem();
+                    break;
+                }
+                case 30:{
+                    ordersPerCountry();
                     break;
                 }
             }
@@ -242,13 +299,16 @@ public class Main {
     // option 6
     //Showcases all buyers sorted
     private static void printBuyers() {
-        int buyerCount=admin.getBuyerCount();
-        Buyer[] buyers = admin.getSortedBuyers();
-        for (int i = 0; i < buyerCount; i++) {
-            System.out.println(buyers[i].toString());
-            System.out.println();
-        }
-    }
+          int buyerCount=admin.getBuyerCount();
+   Buyer[] buyers = admin.getSortedBuyers();
+   for (int i = 0; i < buyerCount; i++) {
+       System.out.println(buyers[i].toString());
+       int buyerIndex = admin.isInBuyers(buyers[i].getUserName());
+       System.out.println(admin.printHistory(buyerIndex));
+       System.out.println();
+   }
+}
+
     //Showcases all buyers sorted
     //option 7
     private static void printSeller() {
@@ -369,7 +429,8 @@ public class Main {
             if (sellerIndex != -1) {
                 System.out.println(admin.printSellerList(sellerIndex));
                 System.out.println("Enter item name to delete:");
-                String itemName = scan.next();
+                scan.nextLine();
+                String itemName = scan.nextLine();
                 admin.deleteItem(sellerIndex, itemName);
                 break;
             } else {
@@ -422,4 +483,140 @@ public class Main {
         }while (!outerchecker);
         return catagory;
     }
+
+    //Queries
+    //Option 21
+    private static void getElectricItems() {
+        StringBuilder sb = new StringBuilder();
+        try {
+            ResultSet rs = queryDAO.getElectricItems();
+            while (rs.next()) {
+                sb.append("Serial: ").append(rs.getInt("SERIAL_NUMBER"))
+                        .append(", Name: ").append(rs.getString("ITEM_NAME"))
+                        .append(", Price: $").append(rs.getDouble("PRICE"))
+                        .append("\n");
+            }
+            System.out.println(sb);
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    // Option 22 - Average price per category
+    private static void getAverageOfEachCategory() {
+        try {
+            ResultSet rs = queryDAO.getAverageOfEachCategory();
+            while (rs.next()) {
+                System.out.println("Category: " + rs.getString("CATEGORY") +
+                                   ", Average Price: $" + rs.getDouble("average_price"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 23 - User with most items
+    private static void userWithMostItems() {
+        try {
+            ResultSet rs = queryDAO.userWithMostItems();
+            if (rs.next()) {
+                System.out.println("User: " + rs.getString("USERNAME") +
+                                   ", Items: " + rs.getInt("items_count"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 24 - Alice's cart history
+    private static void aliceCartHistory() {
+        try {
+            ResultSet rs = queryDAO.aliceCartHistory();
+            while (rs.next()) {
+                System.out.println("Cart ID: " + rs.getInt("CID") +
+                                   ", Date: " + rs.getString("CART_DATE"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 25 - Items from cart ID 3
+    private static void itemsFromCartID3() {
+        try {
+            ResultSet rs = queryDAO.itemsFromCartID3();
+            while (rs.next()) {
+                System.out.println("Name: " + rs.getString("ITEM_NAME") +
+                                   ", Price: $" + rs.getDouble("PRICE") +
+                                   ", Category: " + rs.getString("CATEGORY"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 26 - Total price by cart ID
+    private static void totalPriceByCartID() {
+        try {
+            ResultSet rs = queryDAO.totalPriceByCartID();
+            while (rs.next()) {
+                System.out.println("Cart ID: " + rs.getInt("CID") +
+                                   ", Total: $" + rs.getDouble("total_cart_price"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 27 - Dave's most expensive item
+    private static void davesMostExpensiveItem() {
+        try {
+            ResultSet rs = queryDAO.davesMostExpensiveItem();
+            if (rs.next()) {
+                System.out.println("Item: " + rs.getString("ITEM_NAME") +
+                                   ", Price: $" + rs.getDouble("PRICE"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 28 - Buyers with more than one cart
+    private static void cartsPerBuyer() {
+        try {
+            ResultSet rs = queryDAO.cartsPerBuyer();
+            while (rs.next()) {
+                System.out.println("User: " + rs.getString("USERNAME") +
+                                  ", Orders: " + rs.getInt("order_count"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 29 - Most purchased item
+    private static void mostPurchasedItem() {
+        try {
+            ResultSet rs = queryDAO.mostPurchasedItem();
+            if (rs.next()) {
+                System.out.println("Item: " + rs.getString("ITEM_NAME") +
+                               ", Times Purchased: " + rs.getInt("times_purchased"));
+            }
+        } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    // Option 30 - Orders per country
+    private static void ordersPerCountry() {
+        try {
+            ResultSet rs = queryDAO.ordersPerCountry();
+            while (rs.next()) {
+                System.out.println("Country: " + rs.getString("COUNTRY") +
+                               ", Total Orders: " + rs.getInt("total_orders"));
+                }
+            } catch (SQLException e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
 }

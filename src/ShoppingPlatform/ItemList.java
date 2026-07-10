@@ -44,7 +44,7 @@ public class ItemList implements Cloneable {
     }
     public Item findItem(String itemName){
         for(int i=0; i < listLen; i++){
-            if(itemName.equals(list[i].getItemName())){
+            if (itemName.equalsIgnoreCase(list[i].getItemName())){
                 return list[i];
             }
         }

@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git *)",
+      "Bash(psql --version)",
+      "Bash(brew list *)",
+      "Bash(brew services *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(sudo cat *)",
+      "Bash(sudo ls *)",
+      "Read(//Library/PostgreSQL/**)",
+      "Bash(sudo *)",
+      "Bash(ps *)",
+      "Read(//usr/local/**)",
+      "Read(//Users/shanisarig/.m2/**)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
+}

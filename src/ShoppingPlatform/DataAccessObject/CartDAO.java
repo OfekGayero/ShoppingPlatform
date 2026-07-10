@@ -4,6 +4,18 @@ import ShoppingPlatform.DataBaseConnection;
 import java.sql.*;
 
 public class CartDAO {
+    public int getCartCount(int buyerUID) throws SQLException {
+    String sql = "SELECT COUNT(*) FROM ShoppingCartsTable WHERE UID = ?";
+    try (Connection conn = DataBaseConnection.getConnection();
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, buyerUID);
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        return rs.getInt(1);
+        }
+    }
+
+
     public int insertCart(int buyerUID, String date) throws SQLException {
         String sql = "INSERT INTO ShoppingCartsTable (CART_DATE, UID) VALUES (?, ?) RETURNING CID";
         try (Connection conn = DataBaseConnection.getConnection();
@@ -27,11 +39,11 @@ public class CartDAO {
     }
 
     public ResultSet getCartHistory(int buyerUID) throws SQLException {
-        String sql = "SELECT sc.CID, sc.CART_DATE, i.ITEM_NAME, i.PRICE " +
-                     "FROM ShoppingCartsTable sc " +
-                     "JOIN CartItemsTable ci ON sc.CID = ci.CID " +
-                     "JOIN ItemsTable i ON ci.SERIAL_NUMBER = i.SERIAL_NUMBER " +
-                     "WHERE sc.UID = ? ORDER BY sc.CID";
+        String sql = "SELECT sc.CID, sc.CART_DATE, i.ITEM_NAME, i.PRICE, i.SERIAL_NUMBER, i.CATEGORY " +
+             "FROM ShoppingCartsTable sc " +
+             "JOIN CartItemsTable ci ON sc.CID = ci.CID " +
+             "JOIN ItemsTable i ON ci.SERIAL_NUMBER = i.SERIAL_NUMBER " +
+             "WHERE sc.UID = ? ORDER BY sc.CID";
         Connection conn = DataBaseConnection.getConnection();
         PreparedStatement ps = conn.prepareStatement(sql);
         ps.setInt(1, buyerUID);

@@ -1,5 +1,6 @@
 package ShoppingPlatform;
 
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,8 +13,7 @@ public class DataBaseConnection {
     private static String PASSWORD;
 
     static {
-        try (InputStream input = DataBaseConnection.class
-                .getClassLoader().getResourceAsStream("db.properties")) {
+        try (InputStream input = new FileInputStream("db.properties")) {
             Properties prop = new Properties();
             prop.load(input);
             URL      = prop.getProperty("DB_URL");
